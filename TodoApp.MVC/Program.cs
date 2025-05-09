@@ -1,5 +1,9 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using TodoApp.Application;
+using TodoApp.Domain;
 using TodoApp.MVC.Handlers;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace TodoApp.MVC
 {
@@ -37,7 +41,15 @@ namespace TodoApp.MVC
                 name: "default",
                 pattern: "{controller=Todo}/{action=Index}/{id?}");
 
-            app.Run();
+            using (var scope = app.Services.CreateScope())
+            {
+              using (var concreteContext = scope.ServiceProvider.GetService<TodoAppDbContext>())
+              {
+                  concreteContext.Database.Migrate();
+              }
+            }
+
+                        app.Run();
         }
     }
 }
